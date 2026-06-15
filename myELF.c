@@ -356,6 +356,8 @@ void check_files_merge() {
             }
         }
     }
+
+    
     printf("Check completed.\n");
 }
 // ---- end of part 3a ---- //
