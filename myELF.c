@@ -357,6 +357,38 @@ void check_files_merge() {
         }
     }
 
+    // second direction: loop through file 2 and look in file 1
+    for (int i = 1; i < num_syms2; i++) {
+        Elf32_Sym *sym2 = &symbols2[i];
+        char *name2 = strings2 + sym2->st_name;
+        if (strlen(name2) == 0) continue;
+
+        int found_in_1 = 0;
+        Elf32_Sym *sym1_match = NULL;
+
+        // search for the sign from file 2 in file 1
+        for (int j = 1; j < num_syms1; j++) {
+            if (strcmp(name2, strings1 + symbols1[j].st_name) == 0) {
+                found_in_1 = 1;
+                sym1_match = &symbols1[j];
+                break;
+            }
+        }
+
+        // if the sign is define in file 2 check if it is also defined in file 1 
+        if (sym2->st_shndx != SHN_UNDEF) {
+            if (found_in_1 && sym1_match->st_shndx != SHN_UNDEF) {
+                printf("Error: Symbol %s multiply defined\n", name2);
+            }
+        } 
+        // if it is not defined in file 2 and not in/ not defined in file 1
+        else {
+            if (!found_in_1 || sym1_match->st_shndx == SHN_UNDEF) {
+                printf("Error: Symbol %s undefined\n", name2);
+            }
+        }
+    }
+
     
     printf("Check completed.\n");
 }
